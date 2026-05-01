@@ -1,0 +1,24 @@
+import { Response } from 'express';
+
+export function success(res: Response, data: unknown, statusCode = 200): void {
+  res.status(statusCode).json({ success: true, data });
+}
+
+export function paginated(
+  res: Response,
+  data: unknown[],
+  total: number,
+  page: number,
+  limit: number
+): void {
+  res.status(200).json({
+    success: true,
+    data,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
+}
