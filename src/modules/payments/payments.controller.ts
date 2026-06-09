@@ -32,6 +32,11 @@ export async function initialize(req: Request, res: Response): Promise<void> {
   });
   if (existing) throw new ConflictError('You already own this book');
 
+  // Delete any stale pending purchase so we can retry cleanly
+  await BookPurchase.destroy({
+    where: { userId: auth.user.id, bookId, status: 'pending' as any },
+  });
+
   // Free book — claim instantly
   if (book.price === 0) {
     const purchase = await BookPurchase.create({
