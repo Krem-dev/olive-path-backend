@@ -30,7 +30,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     throw new ConflictError('An account with this email already exists');
   }
 
-  const code = generateOTP(email);
+  const code = await generateOTP(email);
   await sendOTPEmail(email, code);
 
   success(res, { message: 'OTP sent to your email' });
@@ -42,7 +42,7 @@ export async function register(req: Request, res: Response): Promise<void> {
 export async function verifyOtp(req: Request, res: Response): Promise<void> {
   const { name, email, password, otp } = req.body;
 
-  if (!verifyOTP(email, otp)) {
+  if (!(await verifyOTP(email, otp))) {
     throw new BadRequestError('Invalid or expired OTP');
   }
 
@@ -60,7 +60,7 @@ export async function verifyOtp(req: Request, res: Response): Promise<void> {
  */
 export async function resendOtp(req: Request, res: Response): Promise<void> {
   const { email } = req.body;
-  const code = generateOTP(email);
+  const code = await generateOTP(email);
   await sendOTPEmail(email, code);
   success(res, { message: 'OTP resent' });
 }

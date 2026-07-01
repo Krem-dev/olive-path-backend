@@ -1,26 +1,49 @@
 import crypto from 'crypto';
+import sequelize from '../db/connection';
 import { sendMail } from './mailer';
 
-const otpStore = new Map<string, { code: string; expiresAt: number }>();
+// Create OTP table if it doesn't exist
+sequelize.query(`
+  CREATE TABLE IF NOT EXISTS otp_codes (
+    email VARCHAR(255) PRIMARY KEY,
+    code VARCHAR(6) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`).catch(() => {});
 
-export function generateOTP(email: string): string {
+export async function generateOTP(email: string): Promise<string> {
   const code = crypto.randomInt(100000, 999999).toString();
-  otpStore.set(email.toLowerCase(), {
-    code,
-    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-  });
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await sequelize.query(
+    `REPLACE INTO otp_codes (email, code, expires_at) VALUES (:email, :code, :expiresAt)`,
+    { replacements: { email: email.toLowerCase(), code, expiresAt } },
+  );
+
   return code;
 }
 
-export function verifyOTP(email: string, code: string): boolean {
-  const entry = otpStore.get(email.toLowerCase());
-  if (!entry) return false;
-  if (Date.now() > entry.expiresAt) {
-    otpStore.delete(email.toLowerCase());
-    return false;
-  }
+export async function verifyOTP(email: string, code: string): Promise<boolean> {
+  const [rows]: any = await sequelize.query(
+    `SELECT code, expires_at AS expiresAt FROM otp_codes WHERE email = :email`,
+    { replacements: { email: email.toLowerCase() } },
+  );
+
+  if (!rows.length) return false;
+
+  const entry = rows[0];
+  const expired = new Date(entry.expiresAt).getTime() < Date.now();
+
+  // Delete regardless — one-time use
+  await sequelize.query(
+    `DELETE FROM otp_codes WHERE email = :email`,
+    { replacements: { email: email.toLowerCase() } },
+  );
+
+  if (expired) return false;
   if (entry.code !== code) return false;
-  otpStore.delete(email.toLowerCase());
+
   return true;
 }
 
