@@ -9,6 +9,7 @@ interface BookAttributes {
   authorTitle: string | null;
   description: string;
   coverUrl: string;
+  pdfUrl: string | null;
   pages: number;
   /** Price in major currency units (e.g. 40.00 = ₵40). 0 = free. */
   price: number;
@@ -30,6 +31,7 @@ type BookCreationAttributes = Optional<
   | 'isActive'
   | 'isFeatured'
   | 'currency'
+  | 'pdfUrl'
 >;
 
 class Book
@@ -43,6 +45,7 @@ class Book
   declare authorTitle: string | null;
   declare description: string;
   declare coverUrl: string;
+  declare pdfUrl: string | null;
   declare pages: number;
   declare price: number;
   declare currency: string;
@@ -67,6 +70,7 @@ Book.init(
     authorTitle: { type: DataTypes.STRING(255), allowNull: true },
     description: { type: DataTypes.TEXT, allowNull: false },
     coverUrl: { type: DataTypes.STRING(500), allowNull: false },
+    pdfUrl: { type: DataTypes.STRING(500), allowNull: true },
     pages: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
