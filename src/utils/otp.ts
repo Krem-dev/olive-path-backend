@@ -6,14 +6,14 @@ import { sendMail } from './mailer';
 sequelize.query(`
   CREATE TABLE IF NOT EXISTS otp_codes (
     email VARCHAR(255) PRIMARY KEY,
-    code VARCHAR(6) NOT NULL,
+    code VARCHAR(4) NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `).catch(() => {});
 
 export async function generateOTP(email: string): Promise<string> {
-  const code = crypto.randomInt(100000, 999999).toString();
+  const code = crypto.randomInt(1000, 9999).toString();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   await sequelize.query(
