@@ -34,4 +34,12 @@ export const config = {
   },
 
   defaultCurrency: process.env.DEFAULT_CURRENCY || 'GHS',
+
+  smtp: {
+    host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+    port: parseInt(process.env.SMTP_PORT || '465', 10),
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    notifyEmail: process.env.SMTP_NOTIFY_EMAIL || '',
+  },
 };

@@ -4,6 +4,8 @@ import { validate } from '../../middleware/validate';
 import { asyncHandler } from '../../utils/asyncHandler';
 import {
   register,
+  verifyOtp,
+  resendOtp,
   login,
   googleAuth,
   forgotPassword,
@@ -19,6 +21,8 @@ import {
 const router = Router();
 
 router.post('/register', validate(registerValidation), asyncHandler(register));
+router.post('/verify-otp', asyncHandler(verifyOtp));
+router.post('/resend-otp', asyncHandler(resendOtp));
 router.post('/login', validate(loginValidation), asyncHandler(login));
 router.post('/google', validate(googleAuthValidation), asyncHandler(googleAuth));
 router.post(

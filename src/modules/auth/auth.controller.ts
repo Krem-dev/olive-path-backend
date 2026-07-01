@@ -3,11 +3,13 @@ import { User } from '../../models';
 import { signAccessToken, signRefreshToken } from '../../utils/jwt';
 import { success } from '../../utils/response';
 import {
+  BadRequestError,
   ConflictError,
   UnauthorizedError,
   NotFoundError,
 } from '../../middleware/error';
 import { AuthenticatedRequest } from '../../types/express';
+import { generateOTP, verifyOTP, sendOTPEmail } from '../../utils/otp';
 
 function authResponse(user: User) {
   return {
@@ -17,8 +19,32 @@ function authResponse(user: User) {
   };
 }
 
+/**
+ * POST /auth/register — sends OTP to email. Account created on verify.
+ */
 export async function register(req: Request, res: Response): Promise<void> {
-  const { name, email, password } = req.body;
+  const { email } = req.body;
+
+  const existing = await User.findOne({ where: { email } });
+  if (existing) {
+    throw new ConflictError('An account with this email already exists');
+  }
+
+  const code = generateOTP(email);
+  await sendOTPEmail(email, code);
+
+  success(res, { message: 'OTP sent to your email' });
+}
+
+/**
+ * POST /auth/verify-otp — verifies OTP and creates the account.
+ */
+export async function verifyOtp(req: Request, res: Response): Promise<void> {
+  const { name, email, password, otp } = req.body;
+
+  if (!verifyOTP(email, otp)) {
+    throw new BadRequestError('Invalid or expired OTP');
+  }
 
   const existing = await User.findOne({ where: { email } });
   if (existing) {
@@ -27,6 +53,16 @@ export async function register(req: Request, res: Response): Promise<void> {
 
   const user = await User.create({ name, email, password });
   success(res, authResponse(user), 201);
+}
+
+/**
+ * POST /auth/resend-otp — resends OTP to email.
+ */
+export async function resendOtp(req: Request, res: Response): Promise<void> {
+  const { email } = req.body;
+  const code = generateOTP(email);
+  await sendOTPEmail(email, code);
+  success(res, { message: 'OTP resent' });
 }
 
 export async function login(req: Request, res: Response): Promise<void> {
