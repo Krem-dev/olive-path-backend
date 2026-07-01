@@ -33,7 +33,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   const code = await generateOTP(email);
   await sendOTPEmail(email, code);
 
-  success(res, { message: 'OTP sent to your email' });
+  success(res, { message: 'OTP sent to your email', email: email.toLowerCase() });
 }
 
 /**
