@@ -125,3 +125,17 @@ export async function getMe(req: Request, res: Response): Promise<void> {
   if (!user) throw new NotFoundError('User not found');
   success(res, user);
 }
+
+/**
+ * DELETE /auth/account — permanently deletes user and all associated data.
+ */
+export async function deleteAccount(req: Request, res: Response): Promise<void> {
+  const auth = req as AuthenticatedRequest;
+  const user = await User.findByPk(auth.user.id);
+  if (!user) throw new NotFoundError('User not found');
+
+  // Cascade delete handles most relations, but be explicit
+  await user.destroy();
+
+  success(res, { message: 'Account and all data permanently deleted' });
+}

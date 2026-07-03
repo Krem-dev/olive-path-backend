@@ -10,6 +10,7 @@ import {
   googleAuth,
   forgotPassword,
   getMe,
+  deleteAccount,
 } from './auth.controller';
 import {
   registerValidation,
@@ -31,5 +32,6 @@ router.post(
   asyncHandler(forgotPassword),
 );
 router.get('/me', authenticate, asyncHandler(getMe));
+router.delete('/account', authenticate, asyncHandler(deleteAccount));
 
 export default router;
