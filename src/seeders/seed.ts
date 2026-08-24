@@ -16,11 +16,42 @@ import {
 const PASTOR = 'Rev. Ing. Eric Ofori Broni';
 const PASTOR_TITLE = 'EBroni Global Media';
 
-async function seed(): Promise<void> {
-  await sequelize.authenticate();
-  console.log('Database connected.');
+/**
+ * Refuses to run against anything that looks like a production database.
+ *
+ * This seeder calls `sync({ force: true })`, which DROPS AND RECREATES every
+ * table — users, prayer requests, bookings and purchases included. A single
+ * `npm run seed` with a production .env loaded would destroy live client data,
+ * so the target host is checked before anything touches the database.
+ *
+ * Set ALLOW_DESTRUCTIVE_SEED=yes to override deliberately.
+ */
+function assertNotProduction(): void {
+  if (process.env.ALLOW_DESTRUCTIVE_SEED === 'yes') {
+    console.warn('ALLOW_DESTRUCTIVE_SEED=yes — safety check bypassed.');
+    return;
+  }
 
-  // force: true drops & recreates all tables. Dev only.
+  const host = String((sequelize.config as any).host ?? '');
+  const isLocal = /^(localhost|127\.0\.0\.1|::1|host\.docker\.internal)$/.test(host);
+
+  if (process.env.NODE_ENV === 'production' || !isLocal) {
+    console.error(
+      `\nRefusing to seed: "${host}" is not a local database.\n\n` +
+        'This seeder DROPS AND RECREATES every table. Point DB_HOST at a local\n' +
+        'database, or set ALLOW_DESTRUCTIVE_SEED=yes if you really mean it.\n',
+    );
+    process.exit(1);
+  }
+}
+
+async function seed(): Promise<void> {
+  assertNotProduction();
+
+  await sequelize.authenticate();
+  console.log(`Database connected (${(sequelize.config as any).host}).`);
+
+  // force: true drops & recreates all tables. Local only — see the guard above.
   await sequelize.sync({ force: true });
   console.log('Tables recreated.');
 
