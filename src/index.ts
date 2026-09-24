@@ -76,7 +76,7 @@ async function start() {
     await sequelize.authenticate();
     console.log('Database connected successfully.');
 
-    if (config.isDev) {
+    if (config.isDev && process.env.SYNC_DB === 'true') {
       await sequelize.sync({ alter: true });
       console.log('Database tables synced.');
     }
