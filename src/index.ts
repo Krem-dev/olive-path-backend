@@ -24,6 +24,7 @@ import bookmarksRoutes from './modules/bookmarks/bookmarks.routes';
 import notificationsRoutes from './modules/notifications/notifications.routes';
 import prayersRoutes from './modules/prayers/prayers.routes';
 import bookingsRoutes from './modules/bookings/bookings.routes';
+import quotesRoutes from './modules/quotes/quotes.routes';
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.use('/api/devotions', devotionsRoutes);
 app.use('/api/qa', qaRoutes);
 app.use('/api/announcements', announcementsRoutes);
 app.use('/api/programs', programsRoutes);
+app.use('/api/quotes', quotesRoutes);
 
 // ── Authenticated endpoints ──
 app.use('/api/users', usersRoutes);

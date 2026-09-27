@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../../models';
-import { signAccessToken, signRefreshToken } from '../../utils/jwt';
+import { signAccessToken, signRefreshToken, verifyToken } from '../../utils/jwt';
 import { success } from '../../utils/response';
 import {
   BadRequestError,
@@ -10,6 +11,8 @@ import {
 } from '../../middleware/error';
 import { AuthenticatedRequest } from '../../types/express';
 import { generateOTP, verifyOTP, sendOTPEmail } from '../../utils/otp';
+
+const googleClient = new OAuth2Client();
 
 function authResponse(user: User) {
   return {
@@ -84,28 +87,63 @@ export async function login(req: Request, res: Response): Promise<void> {
 }
 
 export async function googleAuth(req: Request, res: Response): Promise<void> {
-  const { googleId, email, name, avatarUrl } = req.body;
+  const { idToken, name, avatarUrl } = req.body;
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw new UnauthorizedError('Invalid Google token');
+  }
+  if (!payload || !payload.sub || !payload.email) {
+    throw new UnauthorizedError('Invalid Google token');
+  }
+
+  const googleId = payload.sub;
+  const email = payload.email;
+  const verifiedName = name || payload.name || email.split('@')[0];
+  const verifiedAvatar = avatarUrl || payload.picture;
 
   let user = await User.findOne({ where: { googleId } });
 
   if (!user) {
     user = await User.findOne({ where: { email } });
     if (user) {
-      // Link Google to existing email account
       user.googleId = googleId;
       user.authProvider = 'google';
-      if (avatarUrl) user.avatarUrl = avatarUrl;
+      if (verifiedAvatar) user.avatarUrl = verifiedAvatar;
       await user.save();
     } else {
       user = await User.create({
-        name,
+        name: verifiedName,
         email,
         googleId,
-        avatarUrl,
+        avatarUrl: verifiedAvatar,
         authProvider: 'google',
       });
     }
   }
+
+  success(res, authResponse(user));
+}
+
+export async function refreshAuth(req: Request, res: Response): Promise<void> {
+  const { refreshToken } = req.body;
+  if (!refreshToken) throw new BadRequestError('Refresh token required');
+
+  let decoded;
+  try {
+    decoded = verifyToken(refreshToken);
+  } catch {
+    throw new UnauthorizedError('Invalid or expired refresh token');
+  }
+
+  const user = await User.findByPk(decoded.id);
+  if (!user) throw new UnauthorizedError('User not found');
 
   success(res, authResponse(user));
 }

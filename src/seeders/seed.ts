@@ -11,9 +11,10 @@ import {
   BookProgress,
   Announcement,
   Program,
+  Quote,
 } from '../models';
 
-const PASTOR = 'Rev. Ing. Eric Ofori Broni';
+const PASTOR = 'Prophet Ing. Eric Ofori Broni';
 const PASTOR_TITLE = 'EBroni Global Media';
 
 /**
@@ -515,7 +516,7 @@ async function seed(): Promise<void> {
       title: 'Kingdom Leadership Summit',
       description:
         'A gathering of leaders across churches to discuss kingdom principles for leadership and influence.',
-      date: '2026-05-10',
+      date: '2026-10-18',
       time: '9:00 AM',
       location: 'ICCC Worship Temple, Atonkore',
     },
@@ -523,9 +524,49 @@ async function seed(): Promise<void> {
       title: 'Marriage & Family Seminar',
       description:
         'Practical biblical teaching on building strong marriages and raising godly families.',
-      date: '2026-05-24',
+      date: '2026-11-08',
       time: '10:00 AM',
       location: 'Olive Path Center, Kumasi',
+    },
+    {
+      title: 'Olive Path Worship Night',
+      description:
+        'An evening of worship, prayer, and the Word to close out the year.',
+      date: '2026-12-20',
+      time: '6:00 PM',
+      location: 'Online Worldwide',
+    },
+  ]);
+
+  // ── Quotes ──
+  await Quote.bulkCreate([
+    {
+      text: 'Faith is not the absence of fear — it is the choice to trust God in the middle of it.',
+      author: PASTOR,
+    },
+    {
+      text: 'Your obedience today is the seed for the miracle God is preparing tomorrow.',
+      author: PASTOR,
+    },
+    {
+      text: 'God does not call the qualified — He qualifies the called.',
+      author: PASTOR,
+    },
+    {
+      text: 'When you walk with God, every step is a step forward, even when it does not feel like it.',
+      author: PASTOR,
+    },
+    {
+      text: 'Prayer is not a last resort. It is the first response of a heart that trusts God.',
+      author: PASTOR,
+    },
+    {
+      text: 'The anointing on your life is not for you alone — it is for the people God has placed around you.',
+      author: PASTOR,
+    },
+    {
+      text: 'Do not be afraid to start small. Great things are built one act of obedience at a time.',
+      author: PASTOR,
     },
   ]);
 

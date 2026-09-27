@@ -21,7 +21,6 @@ export const forgotPasswordValidation = [
 ];
 
 export const googleAuthValidation = [
-  body('googleId').notEmpty().withMessage('Google ID required'),
-  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+  body('idToken').notEmpty().withMessage('Google ID token required'),
   body('name').trim().notEmpty().withMessage('Name required'),
 ];

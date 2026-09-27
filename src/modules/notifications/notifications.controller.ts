@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Notification } from '../../models';
+import { Notification, PushToken } from '../../models';
 import { success } from '../../utils/response';
 import { NotFoundError } from '../../middleware/error';
 import { AuthenticatedRequest } from '../../types/express';
@@ -36,4 +36,22 @@ export async function markAllRead(req: Request, res: Response): Promise<void> {
     { where: { userId: auth.user.id, isRead: false } },
   );
   success(res, { message: 'All notifications marked as read' });
+}
+
+export async function registerPushToken(req: Request, res: Response): Promise<void> {
+  const auth = req as AuthenticatedRequest;
+  const { token, platform } = req.body;
+
+  if (!token || !platform) {
+    res.status(400).json({ error: 'token and platform are required' });
+    return;
+  }
+
+  await PushToken.upsert({
+    userId: auth.user.id,
+    token,
+    platform,
+  });
+
+  success(res, { registered: true }, 201);
 }

@@ -8,6 +8,7 @@ import {
   resendOtp,
   login,
   googleAuth,
+  refreshAuth,
   forgotPassword,
   getMe,
   deleteAccount,
@@ -26,6 +27,7 @@ router.post('/verify-otp', asyncHandler(verifyOtp));
 router.post('/resend-otp', asyncHandler(resendOtp));
 router.post('/login', validate(loginValidation), asyncHandler(login));
 router.post('/google', validate(googleAuthValidation), asyncHandler(googleAuth));
+router.post('/refresh', asyncHandler(refreshAuth));
 router.post(
   '/forgot-password',
   validate(forgotPasswordValidation),

@@ -14,6 +14,8 @@ import Announcement from './Announcement';
 import Program from './Program';
 import CounsellingBooking from './CounsellingBooking';
 import PastorBooking from './PastorBooking';
+import Quote from './Quote';
+import PushToken from './PushToken';
 
 // ── User-owned 1:M ──
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
@@ -42,6 +44,9 @@ CounsellingBooking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 User.hasMany(PastorBooking, { foreignKey: 'userId', as: 'pastorBookings' });
 PastorBooking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(PushToken, { foreignKey: 'userId', as: 'pushTokens' });
+PushToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // ── Sermon ↔ Bookmark / Download ──
 Sermon.hasMany(Bookmark, { foreignKey: 'sermonId', as: 'bookmarks' });
@@ -103,4 +108,6 @@ export {
   Program,
   CounsellingBooking,
   PastorBooking,
+  Quote,
+  PushToken,
 };
