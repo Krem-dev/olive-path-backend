@@ -40,6 +40,13 @@ export class ConflictError extends AppError {
   }
 }
 
+/** 503 — a required service (e.g. payments) is not available */
+export class ServiceUnavailableError extends AppError {
+  constructor(message = 'Service temporarily unavailable') {
+    super(message, 503);
+  }
+}
+
 /** 400 — request payload invalid */
 export class BadRequestError extends AppError {
   constructor(message: string, details?: unknown) {

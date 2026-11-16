@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { Book, BookPurchase, User } from '../../models';
 import { paystack } from '../../utils/paystack';
+import { config } from '../../config';
 import { success } from '../../utils/response';
 import {
   BadRequestError,
   ConflictError,
   NotFoundError,
+  ServiceUnavailableError,
 } from '../../middleware/error';
 import { AuthenticatedRequest } from '../../types/express';
 import { paramStr } from '../../utils/params';
@@ -19,6 +21,15 @@ import { paramStr } from '../../utils/params';
  * - Paid books: creates a 'pending' purchase + Paystack transaction; returns
  *   the authorization_url for the app to open in a WebView/browser.
  */
+/** Paid checkout needs a Paystack key; without one, refuse cleanly instead of erroring. */
+function assertPaymentsEnabled(): void {
+  if (!config.paystack.secretKey) {
+    throw new ServiceUnavailableError(
+      'Payments are temporarily unavailable. Please try again later.',
+    );
+  }
+}
+
 export async function initialize(req: Request, res: Response): Promise<void> {
   const auth = req as AuthenticatedRequest;
   const bookId = parseInt(req.body.bookId, 10);
@@ -52,6 +63,7 @@ export async function initialize(req: Request, res: Response): Promise<void> {
   }
 
   // Paid book — initialize Paystack
+  assertPaymentsEnabled();
   const user = await User.findByPk(auth.user.id);
   if (!user) throw new NotFoundError('User not found');
 
@@ -110,6 +122,7 @@ export async function verify(req: Request, res: Response): Promise<void> {
   }
 
   // Still pending — ask Paystack
+  assertPaymentsEnabled();
   const result = await paystack.verify(reference);
 
   if (result.status === 'success') {
