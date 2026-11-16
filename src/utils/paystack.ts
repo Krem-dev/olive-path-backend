@@ -3,6 +3,18 @@ import { config } from '../config';
 
 const BASE_URL = 'https://api.paystack.co';
 
+/**
+ * Placeholder stored in PAYSTACK_SECRET_KEY while real keys are pending. It is
+ * treated exactly like an empty key: payments are off and nothing signed with it is trusted.
+ */
+const PAYMENTS_DISABLED_KEY =
+  '904810cc1ce5177d29025d5631be8940c8ae5dc5ee7368ddc93988dd4d3bc1af';
+
+export function paymentsEnabled(): boolean {
+  const key = config.paystack.secretKey;
+  return !!key && key !== PAYMENTS_DISABLED_KEY;
+}
+
 export interface InitializeParams {
   email: string;
   /** Amount in major units (e.g. 40 GHS) — converted to minor units internally. */
@@ -39,7 +51,7 @@ async function request<T>(
   path: string,
   init: RequestInit,
 ): Promise<PaystackEnvelope<T>> {
-  if (!config.paystack.secretKey) {
+  if (!paymentsEnabled()) {
     throw new Error('PAYSTACK_SECRET_KEY is not configured');
   }
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -87,7 +99,7 @@ export const paystack = {
    * with the Paystack secret key. Compare against `x-paystack-signature`.
    */
   verifyWebhookSignature(rawBody: string | Buffer, signature: string | undefined): boolean {
-    if (!signature || !config.paystack.secretKey) return false;
+    if (!signature || !paymentsEnabled()) return false;
     const computed = crypto
       .createHmac('sha512', config.paystack.secretKey)
       .update(rawBody)

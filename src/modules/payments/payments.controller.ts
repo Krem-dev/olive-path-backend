@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { Book, BookPurchase, User } from '../../models';
-import { paystack } from '../../utils/paystack';
-import { config } from '../../config';
+import { paystack, paymentsEnabled } from '../../utils/paystack';
 import { success } from '../../utils/response';
 import {
   BadRequestError,
@@ -23,7 +22,7 @@ import { paramStr } from '../../utils/params';
  */
 /** Paid checkout needs a Paystack key; without one, refuse cleanly instead of erroring. */
 function assertPaymentsEnabled(): void {
-  if (!config.paystack.secretKey) {
+  if (!paymentsEnabled()) {
     throw new ServiceUnavailableError(
       'Payments are temporarily unavailable. Please try again later.',
     );
