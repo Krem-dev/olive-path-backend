@@ -92,6 +92,8 @@ async function seedExtras(): Promise<void> {
       date: daysFromNow(9),
       time: '6:00 PM',
       location: 'Accra International Conference Centre',
+      imageUrl: 'https://picsum.photos/seed/program-restoration/800/450',
+      showPopup: true,
       isActive: true,
     },
     {
@@ -100,6 +102,7 @@ async function seedExtras(): Promise<void> {
       date: daysFromNow(3),
       time: '7:00 PM',
       location: 'Olive Path Sanctuary, East Legon',
+      imageUrl: null,
       isActive: true,
     },
     {
@@ -109,6 +112,7 @@ async function seedExtras(): Promise<void> {
       date: daysFromNow(21),
       time: '10:00 AM',
       location: 'Aburi Retreat Grounds',
+      imageUrl: 'https://picsum.photos/seed/program-youth/800/450',
       isActive: true,
     },
   ]);

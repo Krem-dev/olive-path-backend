@@ -519,6 +519,7 @@ async function seed(): Promise<void> {
       date: '2026-10-18',
       time: '9:00 AM',
       location: 'ICCC Worship Temple, Atonkore',
+      imageUrl: 'https://picsum.photos/seed/program-leadership/800/450',
     },
     {
       title: 'Marriage & Family Seminar',
@@ -527,6 +528,7 @@ async function seed(): Promise<void> {
       date: '2026-11-08',
       time: '10:00 AM',
       location: 'Olive Path Center, Kumasi',
+      imageUrl: 'https://picsum.photos/seed/program-marriage/800/450',
     },
     {
       title: 'Olive Path Worship Night',
@@ -535,6 +537,7 @@ async function seed(): Promise<void> {
       date: '2026-12-20',
       time: '6:00 PM',
       location: 'Online Worldwide',
+      imageUrl: null,
     },
   ]);
 
