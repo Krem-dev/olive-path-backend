@@ -3,6 +3,7 @@ import { CounsellingBooking, PastorBooking } from '../../models';
 import { success } from '../../utils/response';
 import { AuthenticatedRequest } from '../../types/express';
 import { sendNotificationEmail } from '../../utils/mailer';
+import { escapeHtml } from '../../utils/escapeHtml';
 
 export async function submitCounselling(
   req: Request,
@@ -23,13 +24,13 @@ export async function submitCounselling(
 
   sendNotificationEmail(
     'New Counselling Booking',
-    `<p><strong>${fullName}</strong> has requested a counselling session.</p>
+    `<p><strong>${escapeHtml(fullName)}</strong> has requested a counselling session.</p>
      <ul>
-       <li><strong>Type:</strong> ${type}</li>
-       <li><strong>Phone:</strong> ${phone}</li>
-       <li><strong>Email:</strong> ${email || 'Not provided'}</li>
-       <li><strong>Preferred Date:</strong> ${preferredDate || 'Not specified'}</li>
-       <li><strong>Concern:</strong> ${concern || 'Not provided'}</li>
+       <li><strong>Type:</strong> ${escapeHtml(type)}</li>
+       <li><strong>Phone:</strong> ${escapeHtml(phone)}</li>
+       <li><strong>Email:</strong> ${escapeHtml(email || 'Not provided')}</li>
+       <li><strong>Preferred Date:</strong> ${escapeHtml(preferredDate || 'Not specified')}</li>
+       <li><strong>Concern:</strong> ${escapeHtml(concern || 'Not provided')}</li>
      </ul>`,
   ).catch(() => {});
 
@@ -54,13 +55,13 @@ export async function submitPastor(req: Request, res: Response): Promise<void> {
 
   sendNotificationEmail(
     'New Pastor Booking Request',
-    `<p><strong>${fullName}</strong> from <strong>${church}</strong> wants to book Ps. Eric for a program.</p>
+    `<p><strong>${escapeHtml(fullName)}</strong> from <strong>${escapeHtml(church)}</strong> wants to book Ps. Eric for a program.</p>
      <ul>
-       <li><strong>Phone:</strong> ${phone}</li>
-       <li><strong>Email:</strong> ${email}</li>
-       <li><strong>Program Date:</strong> ${programDate || 'Not specified'}</li>
-       <li><strong>Location:</strong> ${location || 'Not specified'}</li>
-       <li><strong>Message:</strong> ${message || 'None'}</li>
+       <li><strong>Phone:</strong> ${escapeHtml(phone)}</li>
+       <li><strong>Email:</strong> ${escapeHtml(email)}</li>
+       <li><strong>Program Date:</strong> ${escapeHtml(programDate || 'Not specified')}</li>
+       <li><strong>Location:</strong> ${escapeHtml(location || 'Not specified')}</li>
+       <li><strong>Message:</strong> ${escapeHtml(message || 'None')}</li>
      </ul>`,
   ).catch(() => {});
 
